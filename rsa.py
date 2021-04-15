@@ -1,9 +1,11 @@
+#!/usr/local/bin/python3
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 import base64
+import argparse
 
-
+# Functions for encryption / decryption using the RSA algorithm
 def rsa_encrypt(text="Happy easter", public_key_file="public.pem"):
     """
     text: str Text to encrypt ie. max length is the RSA key length
@@ -70,11 +72,33 @@ def rsa_decrypt(base64_cipher_text, private_key_file="private.pem"):
 
 
 if __name__ == "__main__":
-    # Encryption
-    cipher = rsa_encrypt("Phiture GmbH")
-    print("cipher", cipher)
+    # if you run this script as a CMD command this code will run
 
-    # Decryption
-    text = rsa_decrypt(cipher)
-    print("decrypted text", text)
+    parser = argparse.ArgumentParser(description='Encrypt / Decrypt using RSA Public Key Cryptography. Encryption works only up to the key length ie. 1024, 2048 and 4096 bit', prog='rsa', usage='./%(prog)s.py [options]')
+    parser.add_argument('--private', nargs='?', help='Private Key file name')
+    parser.add_argument('--public', nargs='?', help='Public Key file name')
+    parser.add_argument('--text', nargs='?', help='Text to encrypt or decrypt')
+    parser.add_argument("command", nargs='?', help="Encrypt the given string")
+    args = parser.parse_args()
+    
+    if args.command is not None and args.command == "encrypt":
+        if args.public is not None and args.text is not None:
+            # Encryption
+            cipher = rsa_encrypt(args.text, public_key_file=args.public)
+            print()
+            print(cipher)
+        else:
+            print("Usage: python3 rsa.py encrypt --public public_key_file.pem --text 1231243")
+            
+    
+    elif args.command is not None and args.command == "decrypt":
+        if args.private is not None and args.text is not None:
+            # Decryption
+            text = rsa_decrypt(args.text, private_key_file=args.private)
+            print()
+            print(text)
+        else:
+            print("Usage: python3 rsa.py decrypt --private private_key_file.pem -- text base64string=")
 
+    else:
+        parser.print_help()
